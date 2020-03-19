@@ -1,3 +1,3 @@
-import planner.lib.cataloguer as cataloguer
-
-print(cataloguer.getObjectCollectionCatalogue('/humgen/shepherd_testing/test'))
+import planner.planner as planner
+import testing.config_verification as config_verification
+print(planner.getObjectCollectionCatalogue('/humgen/shepherd_testing/test'))

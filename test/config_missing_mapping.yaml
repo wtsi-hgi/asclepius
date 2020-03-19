@@ -1,0 +1,15 @@
+"*.cram":
+- attribute: pi
+  value: ch12
+- attribute: group
+  value: hgi
+- infer: SequenceData
+- attribute: cost
+  value: 100000
+  unit: gbp
+
+"*":
+- attribute: pi
+  value: ch12
+- attribute: group
+  value: hgi
