@@ -2,6 +2,7 @@ import argparse
 import ssl
 import sys
 import re
+import fnmatch
 
 import irods.exception
 from irods.session import iRODSSession
@@ -115,8 +116,34 @@ def verifyConfig(yaml_file):
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
-def generateAVUs(catalogue):
-    """Generator function that returns (iRODS path, AVU dictionary) tuples.
+def generateAVUs(catalogue, yaml_file, ignore_collections=True):
+    """Generates AVU dictionaries for iRODS objects based on the definitions
+    in a config file.
 
     @param catalogue: Lists of iRODS paths in a dictionary {'objects': <list>,
-    'collections': <list>}"""
+    'collections': <list>}
+    @param yaml_file: Path to the configuration file
+    @param ignore_collections: If True, only data objects will be returned
+    @return: (iRODS path, AVU dictionary) tuples, as a generator"""
+
+    valid = verifyConfig(yaml_file)
+    if valid != True:
+        print("Configuration file error:\n\t{}".format(valid), file=sys.stderr)
+        exit(1)
+
+    with open(yaml_file) as file:
+        config = safe_load(file)
+
+    for path in catalogue['objects']:
+        avus = {}
+        # Prior to Python 3.7, dictionaries did not have an enforced
+        # persistent order, so this might not work properly in older versions.
+        for pattern in reversed(list(config.keys())):
+            if pattern[0] == "/" and pattern[-1] == "/":
+                if not re.search(pattern[1:-1], path):
+                    # regex pattern didn't match
+                    continue
+            else:
+                if not fnmatch.fnmatch(path, pattern):
+                    # glob pattern didn't match
+                    continue
