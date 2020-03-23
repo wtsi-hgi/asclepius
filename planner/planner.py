@@ -8,6 +8,7 @@ import irods.exception
 from irods.session import iRODSSession
 from yaml import safe_load
 
+from .object_class import Plan, AVU
 from config import ENV_FILE
 
 def getObjectCollectionCatalogue(path):
@@ -134,8 +135,13 @@ def generateAVUs(catalogue, yaml_file, ignore_collections=True):
     with open(yaml_file) as file:
         config = safe_load(file)
 
-    for path in catalogue['objects']:
-        avus = {}
+    if ignore_collections:
+        _catalogue = catalogue['objects']
+    else:
+        _catalogue = {**catalogue['objects'], **catalogue['collections']}
+
+    for path in _catalogue:
+        plan_object = Plan(path, [])
         # Prior to Python 3.7, dictionaries did not have an enforced
         # persistent order, so this might not work properly in older versions.
         for pattern in reversed(list(config.keys())):
@@ -147,3 +153,17 @@ def generateAVUs(catalogue, yaml_file, ignore_collections=True):
                 if not fnmatch.fnmatch(path, pattern):
                     # glob pattern didn't match
                     continue
+
+            # TODO: Dynamic AVU code
+
+            for entry in config[pattern]:
+                attribute = entry['attribute']
+                value = entry['value']
+                unit = None
+                if 'unit' in entry.keys():
+                    unit = entry['unit']
+
+                avu_object = AVU(attribute, value, unit)
+                plan_object.metadata.append(avu_object)
+
+        yield plan_object

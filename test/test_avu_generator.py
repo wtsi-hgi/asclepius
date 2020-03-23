@@ -1,5 +1,6 @@
 import unittest
 from planner import planner
+from planner.object_class import Plan, AVU
 
 class TestAVUGenerator(unittest.TestCase):
     def test_static_avus(self):
@@ -7,27 +8,30 @@ class TestAVUGenerator(unittest.TestCase):
             '/test/e.cram', '/test2/abc.cram'],
             'collections': ['/test', '/test2']}
 
-        output = [('/test/a.txt', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'})),
-            ('/test/d.cram', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'}
-                {'attribute': 'cost', 'value': 100000, 'unit': 'gdp'})),
-            ('/test/e.cram', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'}
-                {'attribute': 'cost', 'value': 100000, 'unit': 'gdp'})),
-            ('/test2/abc.cram', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'}
-                {'attribute': 'cost', 'value': 100000, 'unit': 'gdp'}))]
+        output = [
+            Plan('/test/a.txt',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)]),
+            Plan('/test/d.cram',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
+                AVU('cost', 100000, 'gbp')]),
+            Plan('/test/e.cram',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
+                AVU('cost', 100000, 'gbp')]),
+            Plan('/test2/abc.cram',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
+                AVU('cost', 100000, 'gbp')])
+        ]
 
         self.assertEqual(
             list(planner.generateAVUs(catalogue, "test/test_config_1.yaml")),
             output)
 
         output_collections = output.extend(
-            [('/test', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'})),
-            ('/test2', ({'attribute': 'pi', 'value': 'ch12'},
-                {'attribute': 'group', 'value': 'hgi'}))])
+            [Plan('/test',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)]),
+            Plan('/test2',
+                [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)])]
+        )
 
         self.assertEqual(
             list(planner.generateAVUs(catalogue, "test/test_config_1.yaml",
