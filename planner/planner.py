@@ -138,10 +138,11 @@ def generateAVUs(catalogue, yaml_file, ignore_collections=True):
     if ignore_collections:
         _catalogue = catalogue['objects']
     else:
-        _catalogue = {**catalogue['objects'], **catalogue['collections']}
+        _catalogue = catalogue['objects'] + catalogue['collections']
 
     for path in _catalogue:
         plan_object = Plan(path, [])
+        avu_dict = {}
         # Prior to Python 3.7, dictionaries did not have an enforced
         # persistent order, so this might not work properly in older versions.
         for pattern in reversed(list(config.keys())):
@@ -163,7 +164,11 @@ def generateAVUs(catalogue, yaml_file, ignore_collections=True):
                 if 'unit' in entry.keys():
                     unit = entry['unit']
 
-                avu_object = AVU(attribute, value, unit)
-                plan_object.metadata.append(avu_object)
+                avu_dict[attribute] = (value, unit)
+
+        plan_object = Plan(path, [])
+        for attribute in avu_dict.keys():
+            value, unit = avu_dict[attribute]
+            plan_object.metadata.append(AVU(attribute, value, unit))
 
         yield plan_object

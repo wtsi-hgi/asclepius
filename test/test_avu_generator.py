@@ -26,12 +26,10 @@ class TestAVUGenerator(unittest.TestCase):
             list(planner.generateAVUs(catalogue, "test/test_config_1.yaml")),
             output)
 
-        output_collections = output.extend(
-            [Plan('/test',
+        output_collections = output + [Plan('/test',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)]),
             Plan('/test2',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)])]
-        )
 
         self.assertEqual(
             list(planner.generateAVUs(catalogue, "test/test_config_1.yaml",
