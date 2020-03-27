@@ -35,23 +35,25 @@ class Executor:
         return obj.metadata
     
 
-    def execute_plan(self, filepath, planned_AVUs, overwrite = False):
-        # filepath = plan.data_object
-        # planned_AVUs = plan.metadata #Set of AVUs
+    def execute_plan(self, plan, overwrite = False):
+        filepath = plan.data_object
+        planned_AVUs = plan.metadata #List of AVUs
         from irods.meta import iRODSMeta
         existing_metadata = self.get_metadata(filepath)
         with self.process_pool as p:
+            print(planned_AVUs)
             if overwrite is True:
-                for key,value,*unit in planned_AVUs:
-                    new_AVU = iRODSMeta(key,value,unit)
-                    existing_metadata[key] = new_AVU
+                for avu in planned_AVUs:
+                    new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
+                    existing_metadata[avu.attribute] = new_AVU
             else: 
-                for key,value,*unit in planned_AVUs:
-                    if existing_metadata[key] is None:
-                        pass
-                    else:
-                        new_AVU = iRODSMeta(key,value,unit)
-                        existing_metadata[key] = new_AVU           
+                for avu in planned_AVUs:
+                 
+                    try:
+                        existing_metadata.get_one(avu.attribute)
+                    except:
+                        new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
+                        existing_metadata[avu.attribute] = new_AVU     
         # On close, context manager returns process to pool
 
         
