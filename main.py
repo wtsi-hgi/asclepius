@@ -13,7 +13,7 @@ parser.add_argument('--including_collections', '-i', action='store_const',
     const=True, default=False, help="Include this flag to apply metadata AVUs" +
     "to collections as well as data objects. ")
 
-parser.add_argument('root_collection', nargs='1',
+parser.add_argument('root_collection', nargs=1,
     help="Path to the root iRODS collection.")
 
 WORKERS = 4
