@@ -11,7 +11,7 @@ from yaml import safe_load
 from .object_class import Plan, AVU
 from config import ENV_FILE
 
-def getObjectCollectionCatalogue(path):
+def get_object_collection_catalogue(path):
     """Returns a dictionary of lists, {'objects': [], 'collections': []},
     which contains the iRODS path of every object and subcollection in
     the given path.
@@ -60,18 +60,18 @@ def getObjectCollectionCatalogue(path):
 
     return {'objects': object_paths, 'collections': collection_paths}
 
-def verifyInfer(infer):
+def verify_infer(infer):
     """Check whether an infer method referenced in a configuration file
     exists."""
     # placeholder while there are no infer methods
     return True
 
-def verifyMapping(mapping):
+def verify_mapping(mapping):
     """Check whether the mapping is valid for this file type."""
     # placeholder while there are no infer methods
     return True
 
-def verifyConfig(yaml_file):
+def verify_config(yaml_file):
     """Parse configuration file 'file'. Returns True if the config appears
     valid, or a string describing the issue otherwise.
 
@@ -106,18 +106,18 @@ def verifyConfig(yaml_file):
                     if 'mapping' not in keys:
                         return "Invalid dynamic AVU (no mapping): {}".format(entry)
 
-                    if not verifyInfer(avu['infer']):
+                    if not verify_infer(avu['infer']):
                         return "Invalid dynamic AVU (nonexistant infer): {}".format(entry)
 
                     for mapping in avu['mapping'].keys():
-                        if not verifyMapping(mapping):
+                        if not verify_mapping(mapping):
                             return "Invalid dynamic AVU (nonexistant " \
                                 "mapping): {}\t{}".format(entry, mapping)
 
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
-def generateAVUs(catalogue, yaml_file, ignore_collections=True):
+def generate_avus(catalogue, yaml_file, ignore_collections=True):
     """Generates AVU dictionaries for iRODS objects based on the definitions
     in a config file.
 
@@ -127,7 +127,7 @@ def generateAVUs(catalogue, yaml_file, ignore_collections=True):
     @param ignore_collections: If True, only data objects will be returned
     @return: (iRODS path, AVU dictionary) tuples, as a generator"""
 
-    valid = verifyConfig(yaml_file)
+    valid = verify_config(yaml_file)
     if valid != True:
         print("Configuration file error:\n\t{}".format(valid), file=sys.stderr)
         exit(1)

@@ -23,7 +23,7 @@ class TestAVUGenerator(unittest.TestCase):
         ]
 
         self.assertEqual(
-            list(planner.generateAVUs(catalogue, "test/test_config_1.yaml")),
+            list(planner.generate_avus(catalogue, "test/test_config_1.yaml")),
             output)
 
         output_collections = output + [Plan('/test',
@@ -32,7 +32,7 @@ class TestAVUGenerator(unittest.TestCase):
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)])]
 
         self.assertEqual(
-            list(planner.generateAVUs(catalogue, "test/test_config_1.yaml",
+            list(planner.generate_avus(catalogue, "test/test_config_1.yaml",
                 ignore_collections=False)), output_collections)
 
 
