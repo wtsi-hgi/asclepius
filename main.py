@@ -20,8 +20,8 @@ WORKERS = 4
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    executor = Executor(WORKERS)
+    executor = executor.Executor(WORKERS)
 
-    for plan in planner.generate_avus(args.root_collection[0],
+    for plan in planner.generate_plans(args.root_collection[0],
             args.config, args.including_collections):
         executor.execute_plan(plan)
