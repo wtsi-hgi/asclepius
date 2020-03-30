@@ -4,6 +4,8 @@
 from multiprocessing import Pool
 import logging
 
+import core.irods_wrapper as irods_wrapper
+
 class Executor:
     '''
     The execution manager will do the following:
@@ -15,25 +17,14 @@ class Executor:
     '''
     def __init__(self, num_executors):
         self.process_pool = Pool(num_executors)
-        self.make_session()
-    
+        self.session = irods_wrapper.create_session()
 
 
-    def make_session(self):
-        import os
-        import ssl
-        from irods.session import iRODSSession
-        env_file = os.path.expanduser('/nfs/users/nfs_m/mercury/.irods/irods_environment.json')
-        ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=None, capath=None, cadata=None)
-        ssl_settings = {'ssl_context': ssl_context}
-        with iRODSSession(irods_env_file=env_file, **ssl_settings) as session:
-            self.session = session
-        
     def get_metadata(self, filepath):
-        
+
         obj = self.session.data_objects.get(filepath)
         return obj.metadata
-    
+
 
     def execute_plan(self, plan, overwrite = False):
         filepath = plan.data_object
@@ -46,21 +37,12 @@ class Executor:
                 for avu in planned_AVUs:
                     new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
                     existing_metadata[avu.attribute] = new_AVU
-            else: 
+            else:
                 for avu in planned_AVUs:
-                 
+
                     try:
                         existing_metadata.get_one(avu.attribute)
                     except:
                         new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
-                        existing_metadata[avu.attribute] = new_AVU     
+                        existing_metadata[avu.attribute] = new_AVU
         # On close, context manager returns process to pool
-
-        
-
-  
-
-
-
-    
-
