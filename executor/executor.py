@@ -3,6 +3,7 @@
 
 from multiprocessing import Pool
 from irods.meta import iRODSMeta
+import core.irods_wrapper as irods_wrapper
 
 class Executor:
     '''
@@ -18,17 +19,11 @@ class Executor:
         self.session = irods_session
 
 
-    def get_metadata(self, filepath):
-
-        obj = self.session.data_objects.get(filepath)
-        return obj.metadata
-
-
     def execute_plan(self, plan, overwrite = False):
         filepath = plan.data_object
         planned_AVUs = plan.metadata #List of AVUs
         
-        existing_metadata = self.get_metadata(filepath)
+        existing_metadata = irods_wrapper.get_metadata(self.session, filepath)
         with self.process_pool as p: # On close, context manager returns process to pool
             print(planned_AVUs)
             if overwrite is True:

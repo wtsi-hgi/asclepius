@@ -13,6 +13,12 @@ def create_session():
 
     return iRODSSession(irods_env_file=ENV_FILE, **ssl_settings)
 
+def get_metadata(session, filepath):
+
+    obj = session.data_objects.get(filepath)
+    return obj.metadata
+
+
 def get_irods_catalogue(path):
     """Returns a dictionary of lists, {'objects': [], 'collections': []},
     which contains the iRODS path of every object and subcollection in

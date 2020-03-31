@@ -7,7 +7,7 @@ import core.irods_wrapper as irods_wrapper
 
 def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4):
     irods_session = irods_wrapper.create_session()
-    executor = Executor(irods_session, WORKERS)
+    executor = Executor(irods_session, num_workers)
     for plan in planner.generate_plans(root_collection, config):
         executor.execute_plan(plan, overwrite)
 
