@@ -1,5 +1,5 @@
 import unittest
-from executor import Executor
+from executor.executor import Executor
 from planner.object_class import Plan, AVU
 import core.irods_wrapper as irods_wrapper
 
