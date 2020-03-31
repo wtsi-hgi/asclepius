@@ -12,19 +12,19 @@ class TestAsclepius(unittest.TestCase):
        
         root_collection = "/humgen/asclepius_testing"
         self.session = irods_wrapper.create_session()
-        filepath = "/humgen/asclepius_testing/.."
+
+        filepath = "/humgen/asclepius_testing/foo"
          obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
             obj.metadata.remove(avu)
-        obj.metadata.add('foo', 'bar')
+        obj.metadata.add('foo', 'bar')   
 
-        
-    def tearDown(self):
-        # self.coll_path = '/Sanger1/home/mercury'
-        root_collection = "/humgen/asclepius_testing"
 
-    
-    
+        filepath = "/humgen/asclepius_testing/test/bar"
+         obj = self.executor.session.data_objects.get(filepath)
+        for avu in obj.metadata.items():
+            obj.metadata.remove(avu)
+        obj.metadata.add('pi', 'ch12_previous') 
 
     def test_simple(self):
         root_collection = "/humgen/asclepius_testing"
