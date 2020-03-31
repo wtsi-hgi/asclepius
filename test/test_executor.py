@@ -10,8 +10,8 @@ class TestExecutorMethods(unittest.TestCase):
 
     def setUp(self):
         
-        irods_session = irods_wrapper.create_session()
-        self.executor = Executor(irods_session, 1 )
+        self.session = irods_wrapper.create_session()
+        self.executor = Executor(self.session, 1 )
         filepath = "/Sanger1/home/mercury/test"
         obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
@@ -30,7 +30,7 @@ class TestExecutorMethods(unittest.TestCase):
 
     def test_no_overlap_case(self):
         filepath = "/Sanger1/home/mercury/test"
-        existing_avus= self.executor.get_metadata(filepath).items()
+        existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
         planned_avus=  [("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("Key3", "Value3")]
         planned_metadata = []
@@ -43,7 +43,7 @@ class TestExecutorMethods(unittest.TestCase):
 
         # expected_avus =  [("foo", "bar", None), ("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("Key3", "Value3")]
 
-        changed_metadata = self.executor.get_metadata(filepath) # <iRODSMeta 13186 key2 value5 units2>
+        changed_metadata = irods_wrapper.get_metadata(self.session, filepath) # <iRODSMeta 13186 key2 value5 units2>
         print(f"Final_avus: {changed_metadata.items()}")
         self.assertEqual(changed_metadata['foo'].value, "bar")
         self.assertEqual(changed_metadata['foo'].units, None)
@@ -54,7 +54,7 @@ class TestExecutorMethods(unittest.TestCase):
        
     def test_single_overlap(self):
         filepath = "/Sanger1/home/mercury/test"
-        existing_avus= self.executor.get_metadata(filepath).items()
+        existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
 
         planned_avus=  [("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("foo", "changed_bar", "new_unit")]
@@ -68,7 +68,7 @@ class TestExecutorMethods(unittest.TestCase):
         
         # expected_avus =  [("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("foo", "changed_bar", "new_unit")]
 
-        changed_metadata = self.executor.get_metadata(filepath) # <iRODSMeta 13186 key2 value5 units2>
+        changed_metadata = irods_wrapper.get_metadata(self.session, filepath)# <iRODSMeta 13186 key2 value5 units2>
         print(f"Final_avus: {changed_metadata.items()}")
         self.assertEqual(changed_metadata['foo'].value, "changed_bar")
         self.assertEqual(changed_metadata['foo'].units, "new_unit")
@@ -81,7 +81,7 @@ class TestExecutorMethods(unittest.TestCase):
 
         filepath = "/Sanger1/home/mercury/test"
         # existing_avus=[("foo", "bar", None)]
-        existing_avus= self.executor.get_metadata(filepath).items()
+        existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
         planned_avus=  [("foo", "changed_bar", "new_unit")]
         planned_metadata = []
@@ -95,7 +95,7 @@ class TestExecutorMethods(unittest.TestCase):
         # expected_avus =  [("foo", "bar", None)]
 
 
-        changed_metadata = self.executor.get_metadata(filepath) # <iRODSMeta 13186 key2 value5 units2>
+        changed_metadata = irods_wrapper.get_metadata(self.session, filepath)# <iRODSMeta 13186 key2 value5 units2>
         print(f"Final_avus: {changed_metadata.items()}")
         self.assertEqual(changed_metadata['foo'].value, "bar")
         self.assertEqual(changed_metadata['foo'].units, None)      
@@ -115,7 +115,7 @@ class TestExecutorMethods(unittest.TestCase):
 
     #     # expected_avus =  [("foo", "changed_bar")]
 
-    #     changed_metadata = self.executor.get_metadata(filepath) # <iRODSMeta 13186 key2 value5 units2>
+    #     changed_metadata = irods_wrapper get_metadata(self.session, filepath)# <iRODSMeta 13186 key2 value5 units2>
     #     self.assertEqual(changed_metadata['foo'].value, "changed_bar")
     #     self.assertEqual(changed_metadata['foo'].units, None)
 if __name__ == '__main__':
