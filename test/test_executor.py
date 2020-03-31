@@ -1,26 +1,7 @@
 import unittest
 from executor import Executor
 from planner.object_class import Plan, AVU
-
-
-
-# print(obj.metadata.items())
-# [<iRODSMeta 13182 key1 value1 units1>, <iRODSMeta 13185 key2 value4 None>,
-# <iRODSMeta 13183 key1 value2 None>, <iRODSMeta 13184 key2 value3 None>]
-
-# We can also use Python's item indexing syntax to perform the equivalent of an "imeta set ...", e.g. overwriting all AVU's with a name field of "key2" in a single update:
-
-# >>> new_meta = iRODSMeta('key2','value5','units2')
-# >>> obj.metadata[new_meta.name] = new_meta
-# >>> print(obj.metadata.items())
-# [<iRODSMeta 13182 key1 value1 units1>, <iRODSMeta 13183 key1 value2 None>,
-#  <iRODSMeta 13186 key2 value5 units2>]
-# Now, with only one AVU on the object with a name of "key2", get_one is assured of not throwing an exception:
-
-# >>> print(obj.metadata.get_one('key2'))
-# <iRODSMeta 13186 key2 value5 units2>
-
-
+import core.irods_wrapper as irods_wrapper
 
 
 class TestExecutorMethods(unittest.TestCase):
@@ -28,8 +9,9 @@ class TestExecutorMethods(unittest.TestCase):
     '''
 
     def setUp(self):
-        # self.coll_path = '/Sanger1/home/mercury'
-        self.executor = Executor(1)
+        
+        irods_session = irods_wrapper.create_session()
+        self.executor = Executor(irods_session, 1 )
         filepath = "/Sanger1/home/mercury/test"
         obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
@@ -38,7 +20,7 @@ class TestExecutorMethods(unittest.TestCase):
 
         
     def tearDown(self):
-        # self.coll_path = '/Sanger1/home/mercury'
+       
         filepath = "/Sanger1/home/mercury/test"
         obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
