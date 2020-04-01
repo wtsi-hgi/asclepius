@@ -93,11 +93,11 @@ def generate_plans(catalogue, yaml_file, include_collections=False):
     else:
         _catalogue = catalogue
 
-    for type in _catalogue.keys():
-        for path in _catalogue[type]:
-            if type == 'objects':
+    for object_type in _catalogue.keys():
+        for path in _catalogue[object_type]:
+            if object_type == 'objects':
                 plan_object = Plan(path, 'data', [])
-            elif type == 'collections':
+            elif object_type == 'collections':
                 plan_object = Plan(path, 'collection', [])
 
             avu_dict = {}
