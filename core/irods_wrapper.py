@@ -13,9 +13,12 @@ def create_session():
 
     return iRODSSession(irods_env_file=ENV_FILE, **ssl_settings)
 
-def get_metadata(session, filepath):
+def get_metadata(session, filepath, is_collection = False):
 
-    obj = session.data_objects.get(filepath)
+    if is_collection:
+        obj = session.collections.get(filepath)
+    else:
+        obj = session.data_objects.get(filepath)
     return obj.metadata
 
 

@@ -22,10 +22,11 @@ class Executor:
     def execute_plan(self, plan, overwrite = False):
         filepath = plan.path
         planned_AVUs = plan.metadata #List of AVUs
+        is_collection = plan.is_collection
 
-        existing_metadata = irods_wrapper.get_metadata(self.session, filepath)
+        existing_metadata = irods_wrapper.get_metadata(self.session, filepath, is_collection)
         with self.process_pool as p: # On close, context manager returns process to pool
-            print(planned_AVUs)
+            print(f"Filepath: {filepath} AVUs: {planned_AVUs}")
             if overwrite is True:
                 for avu in planned_AVUs:
                     new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
