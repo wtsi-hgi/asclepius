@@ -66,7 +66,7 @@ def verify_config(yaml_file):
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
-def generate_plans(catalogue, yaml_file, ignore_collections=True):
+def generate_plans(catalogue, yaml_file, include_collections=False):
     """Generates AVU dictionaries for iRODS objects based on the definitions
     in a config file.
 
@@ -87,7 +87,7 @@ def generate_plans(catalogue, yaml_file, ignore_collections=True):
     with open(yaml_file) as file:
         config = safe_load(file)
 
-    if ignore_collections:
+    if not include_collections:
         _catalogue = catalogue['objects']
     else:
         _catalogue = catalogue['objects'] + catalogue['collections']

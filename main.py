@@ -8,11 +8,12 @@ import core.irods_wrapper as irods_wrapper
 def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4):
     irods_session = irods_wrapper.create_session()
     executor = Executor(irods_session, num_workers)
-    for plan in planner.generate_plans(root_collection, config):
+    for plan in planner.generate_plans(root_collection, config,
+            include_collections):
         executor.execute_plan(plan, overwrite)
 
 if __name__ == "__main__":
-   
+
     parser = argparse.ArgumentParser(description="Apply metadata AVUs to all " +
     "data objects in an iRODS collection.")
     parser.add_argument('--config', '-c', nargs='?', default='config.yaml',
