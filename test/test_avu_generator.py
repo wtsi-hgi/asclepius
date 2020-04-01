@@ -9,15 +9,15 @@ class TestAVUGenerator(unittest.TestCase):
             'collections': ['/test', '/test2']}
 
         output = [
-            Plan('/test/a.txt',
+            Plan('/test/a.txt', 'data',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)]),
-            Plan('/test/d.cram',
+            Plan('/test/d.cram', 'data',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
                 AVU('cost', 100000, 'gbp')]),
-            Plan('/test/e.cram',
+            Plan('/test/e.cram', 'data',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
                 AVU('cost', 100000, 'gbp')]),
-            Plan('/test2/abc.cram',
+            Plan('/test2/abc.cram', 'data',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None),
                 AVU('cost', 100000, 'gbp')])
         ]
@@ -26,9 +26,9 @@ class TestAVUGenerator(unittest.TestCase):
             list(planner.generate_plans(catalogue, "test/test_config_1.yaml")),
             output)
 
-        output_collections = output + [Plan('/test',
+        output_collections = output + [Plan('/test', 'collection',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)]),
-            Plan('/test2',
+            Plan('/test2', 'collection',
                 [AVU('pi', 'ch12', None), AVU('group', 'hgi', None)])]
 
         self.assertEqual(

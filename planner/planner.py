@@ -125,7 +125,6 @@ def generate_plans(catalogue, yaml_file, include_collections=False):
 
                     avu_dict[attribute] = (value, unit)
 
-            plan_object = Plan(path, [])
             for attribute in avu_dict.keys():
                 value, unit = avu_dict[attribute]
                 plan_object.metadata.append(AVU(attribute, value, unit))
