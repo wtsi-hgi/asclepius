@@ -62,7 +62,7 @@ def get_irods_catalogue(path):
     for object in objects:
         object_paths.append(object.path)
 
-    for collection in collection_paths:
+    for collection in collections:
         collection_paths.append(collection.path)
 
     return {'objects': object_paths, 'collections': collection_paths}
