@@ -9,5 +9,6 @@ class AVU:
 
 @dataclass
 class Plan:
-    data_object: str
+    path: str
+    object_type: str
     metadata: Set[AVU]

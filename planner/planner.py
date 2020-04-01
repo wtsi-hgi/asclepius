@@ -66,6 +66,7 @@ def verify_config(yaml_file):
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
+
 def generate_plans(catalogue, yaml_file, include_collections=False):
     """Generates AVU dictionaries for iRODS objects based on the definitions
     in a config file.
@@ -88,39 +89,45 @@ def generate_plans(catalogue, yaml_file, include_collections=False):
         config = safe_load(file)
 
     if not include_collections:
-        _catalogue = catalogue['objects']
+        _catalogue = {'objects': catalogue['objects']}
     else:
-        _catalogue = catalogue['objects'] + catalogue['collections']
+        _catalogue = catalogue
 
-    for path in _catalogue:
-        plan_object = Plan(path, [])
-        avu_dict = {}
-        # Prior to Python 3.7, dictionaries did not have an enforced
-        # persistent order, so this might not work properly in older versions.
-        for pattern in reversed(list(config.keys())):
-            if pattern[0] == "/" and pattern[-1] == "/":
-                if not re.search(pattern[1:-1], path):
-                    # regex pattern didn't match
-                    continue
-            else:
-                if not fnmatch.fnmatch(path, pattern):
-                    # glob pattern didn't match
-                    continue
+    for type in _catalogue.keys():
+        for path in _catalogue[type]:
+            if type == 'objects':
+                plan_object = Plan(path, 'data', [])
+            elif type == 'collections':
+                plan_object = Plan(path, 'collection', [])
 
-            # TODO: Dynamic AVU code
+            avu_dict = {}
+            # Prior to Python 3.7, dictionaries did not have an enforced
+            # persistent order, so this might not work properly in older
+            # versions.
+            for pattern in reversed(list(config.keys())):
+                if pattern[0] == "/" and pattern[-1] == "/":
+                    if not re.search(pattern[1:-1], path):
+                        # regex pattern didn't match
+                        continue
+                else:
+                    if not fnmatch.fnmatch(path, pattern):
+                        # glob pattern didn't match
+                        continue
 
-            for entry in config[pattern]:
-                attribute = entry['attribute']
-                value = entry['value']
-                unit = None
-                if 'unit' in entry.keys():
-                    unit = entry['unit']
+                # TODO: Dynamic AVU code
 
-                avu_dict[attribute] = (value, unit)
+                for entry in config[pattern]:
+                    attribute = entry['attribute']
+                    value = entry['value']
+                    unit = None
+                    if 'unit' in entry.keys():
+                        unit = entry['unit']
 
-        plan_object = Plan(path, [])
-        for attribute in avu_dict.keys():
-            value, unit = avu_dict[attribute]
-            plan_object.metadata.append(AVU(attribute, value, unit))
+                    avu_dict[attribute] = (value, unit)
 
-        yield plan_object
+            plan_object = Plan(path, [])
+            for attribute in avu_dict.keys():
+                value, unit = avu_dict[attribute]
+                plan_object.metadata.append(AVU(attribute, value, unit))
+
+            yield plan_object

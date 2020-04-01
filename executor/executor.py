@@ -20,9 +20,9 @@ class Executor:
 
 
     def execute_plan(self, plan, overwrite = False):
-        filepath = plan.data_object
+        filepath = plan.path
         planned_AVUs = plan.metadata #List of AVUs
-        
+
         existing_metadata = irods_wrapper.get_metadata(self.session, filepath)
         with self.process_pool as p: # On close, context manager returns process to pool
             print(planned_AVUs)
@@ -37,4 +37,3 @@ class Executor:
                     except:
                         new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
                         existing_metadata[avu.attribute] = new_AVU
-        
