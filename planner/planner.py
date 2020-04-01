@@ -96,9 +96,9 @@ def generate_plans(catalogue, yaml_file, include_collections=False):
     for object_type in _catalogue.keys():
         for path in _catalogue[object_type]:
             if object_type == 'objects':
-                plan_object = Plan(path, 'data', [])
+                plan_object = Plan(path, False, [])
             elif object_type == 'collections':
-                plan_object = Plan(path, 'collection', [])
+                plan_object = Plan(path, True, [])
 
             avu_dict = {}
             # Prior to Python 3.7, dictionaries did not have an enforced

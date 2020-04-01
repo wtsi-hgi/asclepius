@@ -10,5 +10,5 @@ class AVU:
 @dataclass
 class Plan:
     path: str
-    object_type: str
+    is_collection: bool
     metadata: Set[AVU]
