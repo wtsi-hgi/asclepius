@@ -94,6 +94,18 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
     else:
         _catalogue = catalogue
 
+    if resume:
+        with open(progress_file, 'rt') as f:
+            # This is probably hugely inefficient! What to do instead though?
+            for line in f:
+                line = line.strip()
+                try:
+                    print(line in _catalogue['objects'])
+                    _catalogue['objects'].remove(line)
+                except ValueError:
+                    if 'collections' in _catalogue.keys():
+                        _catalogue['collections'].remove(line)
+
     for object_type in _catalogue.keys():
         for path in _catalogue[object_type]:
             if object_type == 'objects':

@@ -20,7 +20,7 @@ def run(root_collection, config, include_collections=False, overwrite=False, num
         for plan in planner.generate_plans(catalogue, config, progress_file,
                 resume, include_collections):
             executor.execute_plan(plan, overwrite)
-            pf.write(plan.path)
+            pf.write(plan.path + "\n")
 
 if __name__ == "__main__":
 
@@ -34,13 +34,15 @@ if __name__ == "__main__":
     parser.add_argument('--overwrite', '-o', action='store_const', const=True,
         default=False, help="Whether to overwrite existing AVUs in case of" + "conflict")
     parser.add_argument('--catalogue_file', '-f', nargs=1,
-        default="catalogue.txt", help="Path to the file which logs the" + "catalogue.")
+        default=["catalogue.txt"], help="Path to the file which logs the" + "catalogue.")
     parser.add_argument('--progress_file', '-p', nargs=1,
-        default = "progress.txt", help="Path to the file which logs progress.")
+        default = ["progress.txt"], help="Path to the file which logs progress.")
     parser.add_argument('--resume', '-r', action='store_const', const=True,
         default=False, help="Whether to restart")
     parser.add_argument('root_collection', nargs=1,
         help="Path to the root iRODS collection.")
     args = parser.parse_args()
     WORKERS = 4
-    run(args.root_collection[0], args.config, args.including_collections, args.overwrite, WORKERS, args.catalogue_file, args.progress_file, restart)
+    run(args.root_collection[0], args.config, args.including_collections,
+        args.overwrite, WORKERS, args.catalogue_file[0], args.progress_file[0],
+        args.resume)
