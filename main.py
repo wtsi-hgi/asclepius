@@ -3,14 +3,23 @@ import argparse
 import planner.planner as planner
 from executor.executor import Executor
 import core.irods_wrapper as irods_wrapper
+import json
 
 
-def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4):
+def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4, catalogue_file='catalogue.txt', progress_file='progress.txt', resume = False):
     irods_session = irods_wrapper.create_session()
+    if not resume:
+        catalogue = irods_wrapper.get_irods_catalogue(root_collection)
+        with open(catalogue_file, 'w+') as cf:
+            json.dump(catalogue, cf)
+    else:
+        with open(catalogue_file, 'r') as cf: 
+            catalogue = json.load(cf)     
     executor = Executor(irods_session, num_workers)
-    for plan in planner.generate_plans(root_collection, config,
-            include_collections):
-        executor.execute_plan(plan, overwrite)
+    with open(progress_file, 'a+') as pf:
+        for plan in planner.generate_plans(catalogue, config, include_collections, catalogue_file, progress_file, restart):
+            executor.execute_plan(plan, overwrite)
+            pf.write(plan.path)
 
 if __name__ == "__main__":
 
@@ -21,10 +30,16 @@ if __name__ == "__main__":
     parser.add_argument('--including_collections', '-i', action='store_const',
     const=True, default=False, help="Include this flag to apply metadata AVUs" +
     "to collections as well as data objects. ")
-    parser.add_argument('--overwrite', '-o',nargs=1,
+    parser.add_argument('--overwrite', '-o', const=True, 
     help="Whether to overwrite existing AVUs in case of conflict", default=False)
+    parser.add_argument('--catalogue_file', '-c' nargs=1,
+    help="Path to the file which logs the catalogue.", default = "catalogue.txt")
+    parser.add_argument('--progress_file', '-p', nargs=1,
+    help="Path to the file which logs progress.", default = "progress.txt")
+    parser.add_argument('--resume', '-r', const=True, 
+    help="Whether to restart", default=False)
     parser.add_argument('root_collection', nargs=1,
     help="Path to the root iRODS collection.")
     args = parser.parse_args()
     WORKERS = 4
-    run(args.root_collection[0], args.config, args.including_collections, args.overwrite, WORKERS)
+    run(args.root_collection[0], args.config, args.including_collections, args.overwrite, WORKERS, args.catalogue_file, args.progress_file, restart)
