@@ -33,7 +33,7 @@ if __name__ == "__main__":
         "AVUs to collections as well as data objects. ")
     parser.add_argument('--overwrite', '-o', action='store_const', const=True,
         default=False, help="Whether to overwrite existing AVUs in case of" + "conflict")
-    parser.add_argument('--catalogue_file', '-f' nargs=1,
+    parser.add_argument('--catalogue_file', '-f', nargs=1,
         default="catalogue.txt", help="Path to the file which logs the" + "catalogue.")
     parser.add_argument('--progress_file', '-p', nargs=1,
         default = "progress.txt", help="Path to the file which logs progress.")
