@@ -67,7 +67,8 @@ def verify_config(yaml_file):
     return True
 
 
-def generate_plans(catalogue, yaml_file, include_collections=False):
+def generate_plans(catalogue, yaml_file, progress_file, resume,
+        include_collections=False):
     """Generates AVU dictionaries for iRODS objects based on the definitions
     in a config file.
 
