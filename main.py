@@ -6,7 +6,7 @@ import core.irods_wrapper as irods_wrapper
 import json
 
 
-def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4, catalogue_file='catalogue.txt', progress_file='progress.txt', resume = False):
+def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4, catalogue_file='catalogue.txt', progress_file='progress.txt', resume = False, refresh = False):
     irods_session = irods_wrapper.create_session()
     executor = Executor(irods_session, num_workers)
     catalogue = irods_wrapper.get_irods_catalogue(root_collection)
@@ -16,14 +16,14 @@ def run(root_collection, config, include_collections=False, overwrite=False, num
         #     json.dump(catalogue, cf)
         with open(progress_file, 'w') as pf:
             for plan in planner.generate_plans(catalogue, config, progress_file, resume, include_collections):
-                executor.execute_plan(plan, overwrite)
+                executor.execute_plan(plan, overwrite, refresh)
                 pf.write(plan.path + "\n")
     else:
         # with open(catalogue_file, 'r') as cf:
         #     catalogue = json.load(cf)
         with open(progress_file, 'a') as pf:
             for plan in planner.generate_plans(catalogue, config, progress_file, resume, include_collections):
-                executor.execute_plan(plan, overwrite)
+                executor.execute_plan(plan, overwrite, refresh)
                 pf.write(plan.path + "\n")
 
 
@@ -46,6 +46,8 @@ if __name__ == "__main__":
         default = ["progress.txt"], help="Path to the file which logs progress.")
     parser.add_argument('--resume', '-r', action='store_const', const=True,
         default=False, help="Whether to restart")
+    parser.add_argument('--refresh', action='store_const', const=True,
+        default=False, help="Whether to remove old avus")
     parser.add_argument('root_collection', nargs=1,
         help="Path to the root iRODS collection.")
     args = parser.parse_args()
@@ -55,5 +57,5 @@ if __name__ == "__main__":
     start_time = time.time()
     run(args.root_collection[0], args.config, args.including_collections,
         args.overwrite, WORKERS, args.catalogue_file[0], args.progress_file[0],
-        args.resume)
+        args.resume, args.refresh)
     print("--- %s seconds ---" % (time.time() - start_time))

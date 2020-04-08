@@ -12,7 +12,7 @@ class TestExecutorMethods(unittest.TestCase):
         
         self.session = irods_wrapper.create_session()
         self.executor = Executor(self.session, 1 )
-        filepath = "/Sanger1/home/mercury/test"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
             obj.metadata.remove(avu)
@@ -21,7 +21,7 @@ class TestExecutorMethods(unittest.TestCase):
         
     def tearDown(self):
        
-        filepath = "/Sanger1/home/mercury/test"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         obj = self.executor.session.data_objects.get(filepath)
         for avu in obj.metadata.items():
             obj.metadata.remove(avu)
@@ -29,7 +29,7 @@ class TestExecutorMethods(unittest.TestCase):
     
 
     def test_no_overlap_case(self):
-        filepath = "/Sanger1/home/mercury/test"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
         planned_avus=  [("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("Key3", "Value3")]
@@ -38,7 +38,7 @@ class TestExecutorMethods(unittest.TestCase):
             planned_metadata.append(AVU(*avu))
 
 
-        plan = Plan(filepath, planned_metadata)
+        plan = Plan(filepath, False, planned_metadata)
         self.executor.execute_plan(plan)
 
         # expected_avus =  [("foo", "bar", None), ("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("Key3", "Value3")]
@@ -53,7 +53,7 @@ class TestExecutorMethods(unittest.TestCase):
         self.assertEqual(changed_metadata['Key3'].value, "Value3")
        
     def test_single_overlap(self):
-        filepath = "/Sanger1/home/mercury/test"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
 
@@ -63,7 +63,7 @@ class TestExecutorMethods(unittest.TestCase):
             planned_metadata.append(AVU(*avu))
 
 
-        plan = Plan(filepath, planned_metadata)
+        plan = Plan(filepath, False, planned_metadata)
         self.executor.execute_plan(plan, True)
         
         # expected_avus =  [("Key1", "Value1"), ("Key2", "Value2", "Unit2"), ("foo", "changed_bar", "new_unit")]
@@ -79,7 +79,7 @@ class TestExecutorMethods(unittest.TestCase):
        
     def test_no_overwrite(self):
 
-        filepath = "/Sanger1/home/mercury/test"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         # existing_avus=[("foo", "bar", None)]
         existing_avus= irods_wrapper.get_metadata(self.session, filepath).items()
         print(f"existing_avus: {existing_avus}")
@@ -89,7 +89,7 @@ class TestExecutorMethods(unittest.TestCase):
             planned_metadata.append(AVU(*avu))
 
 
-        plan = Plan(filepath, planned_metadata)
+        plan = Plan(filepath, False, planned_metadata)
         self.executor.execute_plan(plan)
 
         # expected_avus =  [("foo", "bar", None)]
@@ -102,7 +102,7 @@ class TestExecutorMethods(unittest.TestCase):
 
       # def test_two_value_overwrite(self):
 
-    #     filepath = "/Sanger1/home/mercury/test"
+    #     filepath = "/humgen/asclepius_testing/new-test/foo"
     #     existing_avus=[("foo", "bar", None), ("foo", "bar", "foo_unit")]
     #     planned_avus=  [("foo", "changed_bar")]
     #     planned_metadata = []

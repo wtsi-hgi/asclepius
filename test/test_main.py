@@ -19,32 +19,31 @@ class TestAsclepius(unittest.TestCase):
     def setUp(self):
        
         self.session = irods_wrapper.create_session()
-        filepath = "/humgen/asclepius_testing/foo"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         metadata = ('foo', 'bar')  
         self.setUpFile(filepath, metadata)
 
-        filepath = "/humgen/asclepius_testing/test/bar"
+        filepath = "/humgen/asclepius_testing/new-test/test/bar"
         metadata = ('pi', 'ch12_previous') 
         self.setUpFile(filepath, metadata)
 
     def tearDown(self):
        
         self.session = irods_wrapper.create_session()
-        filepath = "/humgen/asclepius_testing/foo"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         metadata = ('foo', 'bar')  
         self.setUpFile(filepath, metadata)
 
-        filepath = "/humgen/asclepius_testing/test/bar"
+        filepath = "/humgen/asclepius_testing/new-test/test/bar"
         metadata = ('pi', 'ch12_previous') 
         self.setUpFile(filepath, metadata)
 
 
     def test_simple(self):
-        root_collection = "/humgen/asclepius_testing"
         config = "/lustre/scratch115/teams/hgi/lustre-usage/tools/pyrodstest/asclepius/test/test_config_1.yaml"
         main.run(root_collection, config)
 
-        filepath = "/humgen/asclepius_testing/foo"
+        filepath = "/humgen/asclepius_testing/new-test/foo"
         # expected_metadata = [(pi, ch12, None), (group, hgi, None), (foo, bar, None)]
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath) # <iRODSMeta 13186 key2 value5 units2>
         print(f"Final_avus: {changed_metadata.items()}")
@@ -53,7 +52,7 @@ class TestAsclepius(unittest.TestCase):
         self.assertEqual(changed_metadata['pi'].value, "ch12")
         self.assertEqual(changed_metadata['group'].value, "hgi")
 
-        filepath = "/humgen/asclepius_testing/test/bar"
+        filepath = "/humgen/asclepius_testing/new-test/test/bar"
         # expected_metadata = [(pi, ch12_previous, None), (group, hgi, None), (foo, bar, None)]
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath) # <iRODSMeta 13186 key2 value5 units2>
         print(f"Final_avus: {changed_metadata.items()}")
@@ -66,7 +65,7 @@ class TestAsclepius(unittest.TestCase):
         main.run(root_collection, config, overwrite = True)
 
     
-        filepath = "/humgen/asclepius_testing/test/bar"
+        filepath = "/humgen/asclepius_testing/new-test/test/bar"
         # expected_metadata = [(pi, ch12, None), (group, hgi, None)]
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath)
         print(f"Final_avus: {changed_metadata.items()}")
@@ -79,20 +78,20 @@ class TestAsclepius(unittest.TestCase):
         main.run(root_collection, config, include_collections = True, overwrite = True)
 
     
-        filepath = "/humgen/asclepius_testing/test/bar"
+        filepath = "/humgen/asclepius_testing/new-test/test/bar"
         # expected_metadata = [(pi, ch12, None), (group, hgi, None)]
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath)
         self.assertEqual(changed_metadata['pi'].value, "ch12")
         self.assertEqual(changed_metadata['group'].value, "hgi")
 
-        filepath = "/humgen/asclepius_testing/test"
+        filepath = "/humgen/asclepius_testing/new-test/test"
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath, True)
         print(f"Final_avus: {changed_metadata.items()}")
         self.assertEqual(changed_metadata['pi'].value, "ch12")
         self.assertEqual(changed_metadata['group'].value, "hgi")
 
 
-        filepath = "/humgen/asclepius_testing"
+        filepath = "/humgen/asclepius_testing/new-test"
         changed_metadata = irods_wrapper.get_metadata(self.session, filepath, True)
         print(f"Final_avus: {changed_metadata.items()}")
         self.assertEqual(changed_metadata['pi'].value, "ch12")
@@ -107,13 +106,13 @@ class TestAsclepius(unittest.TestCase):
     #     main.run(root_collection, config, include_collections = True, overwrite = True, catalogue_file= catalogue_file, progress_file= progress_file, resume = True)
 
     
-    #     filepath = "/humgen/asclepius_testing/test/bar"
+    #     filepath = "/humgen/asclepius_testing/new-test/test/bar"
     #     # expected_metadata = [(pi, ch12, None), (group, hgi, None)]
     #     changed_metadata = irods_wrapper.get_metadata(self.session, filepath)
     #     self.assertEqual(changed_metadata['pi'].value, "ch12")
     #     self.assertEqual(changed_metadata['group'].value, "hgi")
 
-    #     filepath = "/humgen/asclepius_testing/test"
+    #     filepath = "/humgen/asclepius_testing/new-test/test"
     #     changed_metadata = irods_wrapper.get_metadata(self.session, filepath, True)
     #     print(f"Final_avus: {changed_metadata.items()}")
     #     self.assertEqual(changed_metadata['pi'].value, "ch12")

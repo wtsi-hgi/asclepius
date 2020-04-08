@@ -19,7 +19,7 @@ class Executor:
         self.session = irods_session
 
 
-    def execute_plan(self, plan, overwrite = False):
+    def execute_plan(self, plan, overwrite = False, refresh = False):
         filepath = plan.path
         planned_AVUs = plan.metadata #List of AVUs
         is_collection = plan.is_collection
@@ -27,14 +27,35 @@ class Executor:
         existing_metadata = irods_wrapper.get_metadata(self.session, filepath, is_collection)
         with self.process_pool as p: # On close, context manager returns process to pool
             print(f"Filepath: {filepath} AVUs: {planned_AVUs}")
-            if overwrite is True:
+
+            if refresh:
+                for avu in existing_metadata.items():
+                    existing_metadata.remove(avu)
                 for avu in planned_AVUs:
-                    new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
-                    existing_metadata[avu.attribute] = new_AVU
-            else:
+                    if avu.attribute:
+                        new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
+                        sexisting_metadata[avu.attribute] = new_AVU
+                return 
+
+            if overwrite:
+                for avu in planned_AVUs:
+
+                    try:
+                        existing_AVU = existing_metadata.get_one(avu.attribute)
+                        if existing_AVU.value != avu.value or existing_AVU.units != avu.unit:
+                            new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
+                            existing_metadata[avu.attribute] = new_AVU 
+                    except:
+                        if avu.attribute:
+                            new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
+                            existing_metadata[avu.attribute] = new_AVU 
+                return
+
+            if not refresh and not overwrite:
                 for avu in planned_AVUs:
                     try:
                         existing_metadata.get_one(avu.attribute)
                     except:
                         new_AVU = iRODSMeta(avu.attribute,avu.value,avu.unit)
-                        existing_metadata[avu.attribute] = new_AVU
+                        if avu.attribute:
+                            existing_metadata[avu.attribute] = new_AVU
