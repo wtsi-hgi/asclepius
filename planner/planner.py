@@ -2,6 +2,8 @@ import argparse
 import sys
 import re
 import fnmatch
+from tokenize import generate_tokens
+from io import StringIO
 
 from yaml import safe_load
 
@@ -66,6 +68,62 @@ def verify_config(yaml_file):
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
+def _split_by_symbol(string, symbol):
+    """Splits a string of elements divided by a symbol into a list. Unlike
+    the csv module, this ignores symbols in quoted strings even if the
+    quotation mark isn't immediately before or after a symbol.
+
+    The symbol range is limited by the Python tokeniser."""
+
+    # The function doesn't have to do any quote detection itself, the
+    # Python tokeniser just handles quoted strings better than the csv library.
+
+    symbols = [-1] # list of comma positions
+    # For each token (t) indicating a symbol, get its position (t[2][1])
+    # and add it to the symbols list
+    symbols.extend(t[2][1] for t in generate_tokens(
+        StringIO(string).readline) if t[1] == symbol)
+    symbols.append(len(string))
+    # Creates a list of slices of the string based on symbol locations
+    return [ string[symbols[i]+1:symbols[i+1]] for i in range(len(symbols)-1)]
+
+def parse_variant_header(header):
+    """Convert a VCF header string into a Python data structure. The header's
+    validity is NOT checked.
+
+    @param header: VCF header string"""
+    header = header.split("\n")
+
+    header_dict = {}
+
+    for line in header:
+        if line[0] == "#" and line[:2] != "##":
+            # column headers
+            pass
+            continue
+
+        if line[:2] != "##":
+            continue
+
+        _line = line[2:]
+        key, value = _line.split("=", 1)
+
+        header_dict[key] = None
+        # value is another set of key-value pairs
+        if value[0] == "<" and value[-1] == ">":
+            header_dict[key] = {}
+
+            _value = _value[1:-1]
+            _values = _split_by_comma(_value)
+            for subpair in _values:
+                subkey, subvalue = subpair.split("=", 1)
+                header_dict[key][subkey] = subvalue
+        else:
+            # If the value isn't surrounded in <>, assume it's a simple pair
+            header_dict[key] = value
+
+    return header_dict
+    
 
 def generate_plans(catalogue, yaml_file, progress_file, resume,
         include_collections=False):
