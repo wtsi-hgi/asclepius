@@ -98,6 +98,33 @@ class TestAsclepius(unittest.TestCase):
         self.assertEqual(changed_metadata['pi'].value, "ch12")
         self.assertEqual(changed_metadata['group'].value, "hgi")
 
+
+    # def test_resume_flag(self):
+    #     root_collection = "/humgen/asclepius_testing"
+    #     config = "/lustre/scratch115/teams/hgi/lustre-usage/tools/pyrodstest/asclepius/test/test_config_1.yaml"
+    #     progress_file = 'progress.txt'
+    #     catalogue_file = 'catalogue.txt'
+    #     main.run(root_collection, config, include_collections = True, overwrite = True, catalogue_file= catalogue_file, progress_file= progress_file, resume = True)
+
+    
+    #     filepath = "/humgen/asclepius_testing/test/bar"
+    #     # expected_metadata = [(pi, ch12, None), (group, hgi, None)]
+    #     changed_metadata = irods_wrapper.get_metadata(self.session, filepath)
+    #     self.assertEqual(changed_metadata['pi'].value, "ch12")
+    #     self.assertEqual(changed_metadata['group'].value, "hgi")
+
+    #     filepath = "/humgen/asclepius_testing/test"
+    #     changed_metadata = irods_wrapper.get_metadata(self.session, filepath, True)
+    #     print(f"Final_avus: {changed_metadata.items()}")
+    #     self.assertEqual(changed_metadata['pi'].value, "ch12")
+    #     self.assertEqual(changed_metadata['group'].value, "hgi")
+
+
+    #     filepath = "/humgen/asclepius_testing"
+    #     changed_metadata = irods_wrapper.get_metadata(self.session, filepath, True)
+    #     print(f"Final_avus: {changed_metadata.items()}")
+    #     self.assertEqual(changed_metadata['pi'].value, "ch12")
+    #     self.assertEqual(changed_metadata['group'].value, "hgi")
   
 if __name__ == '__main__':
     unittest.main()

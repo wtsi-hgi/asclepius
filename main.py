@@ -8,19 +8,26 @@ import json
 
 def run(root_collection, config, include_collections=False, overwrite=False, num_workers=4, catalogue_file='catalogue.txt', progress_file='progress.txt', resume = False):
     irods_session = irods_wrapper.create_session()
-    if not resume:
-        catalogue = irods_wrapper.get_irods_catalogue(root_collection)
-        with open(catalogue_file, 'w+') as cf:
-            json.dump(catalogue, cf)
-    else:
-        with open(catalogue_file, 'r') as cf:
-            catalogue = json.load(cf)
     executor = Executor(irods_session, num_workers)
-    with open(progress_file, 'a+') as pf:
-        for plan in planner.generate_plans(catalogue, config, progress_file,
-                resume, include_collections):
-            executor.execute_plan(plan, overwrite)
-            pf.write(plan.path + "\n")
+    catalogue = irods_wrapper.get_irods_catalogue(root_collection)
+    if not resume:
+        
+        # with open(catalogue_file, 'w') as cf:
+        #     json.dump(catalogue, cf)
+        with open(progress_file, 'w') as pf:
+            for plan in planner.generate_plans(catalogue, config, progress_file, resume, include_collections):
+                executor.execute_plan(plan, overwrite)
+                pf.write(plan.path + "\n")
+    else:
+        # with open(catalogue_file, 'r') as cf:
+        #     catalogue = json.load(cf)
+        with open(progress_file, 'a') as pf:
+            for plan in planner.generate_plans(catalogue, config, progress_file, resume, include_collections):
+                executor.execute_plan(plan, overwrite)
+                pf.write(plan.path + "\n")
+
+
+    
 
 if __name__ == "__main__":
 
@@ -43,6 +50,10 @@ if __name__ == "__main__":
         help="Path to the root iRODS collection.")
     args = parser.parse_args()
     WORKERS = 4
+
+    import time
+    start_time = time.time()
     run(args.root_collection[0], args.config, args.including_collections,
         args.overwrite, WORKERS, args.catalogue_file[0], args.progress_file[0],
         args.resume)
+    print("--- %s seconds ---" % (time.time() - start_time))

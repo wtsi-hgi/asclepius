@@ -83,9 +83,6 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
         print("Configuration file error:\n\t{}".format(valid), file=sys.stderr)
         exit(1)
 
-    if type(catalogue) == str:
-        catalogue = irods_wrapper.get_irods_catalogue(catalogue)
-
     with open(yaml_file) as file:
         config = safe_load(file)
 
@@ -96,15 +93,12 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
 
     if resume:
         with open(progress_file, 'rt') as f:
-            # This is probably hugely inefficient! What to do instead though?
-            for line in f:
-                line = line.strip()
-                try:
-                    print(line in _catalogue['objects'])
-                    _catalogue['objects'].remove(line)
-                except ValueError:
-                    if 'collections' in _catalogue.keys():
-                        _catalogue['collections'].remove(line)
+            # _catalogue['objects'] = list(set(_catalogue['objects']) - set(line.strip() for line in f)) This doesnt work for some reason
+            progress_file_set = set(line.strip() for line in f)
+            _catalogue['objects'] = list(set(_catalogue['objects']) - progress_file_set)
+            if include_collections:
+                _catalogue['collections'] = list(set(_catalogue['collections']) - progress_file_set)
+            
 
     for object_type in _catalogue.keys():
         for path in _catalogue[object_type]:
