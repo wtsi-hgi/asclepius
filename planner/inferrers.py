@@ -54,6 +54,8 @@ def parse_variant_header(header):
                 line_dict[subkey] = subvalue
 
             # Should the ID be left in the line_dict redundantly? Not sure.
+            if namespace not in header_dict.keys():
+                header_dict[namespace] = {}
             header_dict[namespace][line_dict['ID']] = line_dict
 
         else:

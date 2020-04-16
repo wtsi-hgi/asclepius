@@ -6,6 +6,7 @@ import fnmatch
 from yaml import safe_load
 
 import core.irods_wrapper as irods_wrapper
+import planner.inferrers as inferrers
 from .object_class import Plan, AVU
 from config import ENV_FILE
 
@@ -65,6 +66,33 @@ def verify_config(yaml_file):
 
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
+
+def _infer_variant(plan, mapping):
+    """Adds AVUs to a plan object pointing at a variant file."""
+
+    header = inferrers.get_variant_header(plan.path)
+
+    for key in mapping.keys():
+        target = mapping[key].split('.')
+
+        target_value = header
+        try:
+            for subtarget in target:
+                target_value = target_value[subtarget]
+        except KeyError:
+            # TODO: Abort execution? Continue after omitting bad target?
+            print("Metadata target {} not found in {}."
+                .format(mapping[key], plan.path))
+            continue
+
+        if type(target_value) == dict:
+            # Convert dictinary to usefully formatted string
+            pass
+
+        plan.metadata.append(AVU(key, target_value))
+
+def _infer_sequence(plan, mapping):
+    """Adds AVUs to a plan object pointing at a sequence file."""
 
 def generate_plans(catalogue, yaml_file, progress_file, resume,
         include_collections=False):
@@ -131,14 +159,14 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
                         if 'unit' in entry.keys():
                             unit = entry['unit']
 
-                    if 'infer' in entry.keys():
+                        plan_object.metadata.append(AVU(attribute, value, unit))
+
+                    elif 'infer' in entry.keys():
                         # Dynamic AVUs
-                        pass
+                        if entry['infer'] == 'variant':
+                            pass
+                        elif entry['infer'] == 'sequence':
+                            pass
 
-                    avu_dict[attribute] = (value, unit)
-
-            for attribute in avu_dict.keys():
-                value, unit = avu_dict[attribute]
-                plan_object.metadata.append(AVU(attribute, value, unit))
 
             yield plan_object
