@@ -67,16 +67,20 @@ def verify_config(yaml_file):
     # TODO: throw errors at invalid keys instead of just ignoring them
     return True
 
-def _infer_variant(plan, mapping):
-    """Adds AVUs to a plan object pointing at a variant file."""
+def _infer_file(plan, mapping, file_type):
+    """Adds AVUs to a plan object pointing at a file."""
 
-    header = inferrers.get_variant_header(plan.path)
+    if file_type == 'variant':
+        header = inferrers.get_variant_header(plan.path)
+    elif file_type == 'sequence':
+        header = inferrers.get_sequence_header(plan.path)
 
     for key in mapping.keys():
         target = mapping[key].split('.')
 
         target_value = header
         try:
+            # Iteratively descend the header dictionary
             for subtarget in target:
                 target_value = target_value[subtarget]
         except KeyError:
@@ -86,13 +90,15 @@ def _infer_variant(plan, mapping):
             continue
 
         if type(target_value) == dict:
-            # Convert dictinary to usefully formatted string
-            pass
+            # Convert dictinary to a cleaner string
+            _string = ''
+            for _key, _value in target_value.items():
+                _string += "{}={},".format(_key, _value)
+            target_value = _string.strip(',')
 
         plan.metadata.append(AVU(key, target_value))
 
-def _infer_sequence(plan, mapping):
-    """Adds AVUs to a plan object pointing at a sequence file."""
+    return plan
 
 def generate_plans(catalogue, yaml_file, progress_file, resume,
         include_collections=False):
@@ -164,9 +170,11 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
                     elif 'infer' in entry.keys():
                         # Dynamic AVUs
                         if entry['infer'] == 'variant':
-                            pass
-                        elif entry['infer'] == 'sequence':
-                            pass
+                            plan_object = _infer_file(plan_object,
+                                entry['mapping'], 'variant')
 
+                        elif entry['infer'] == 'sequence':
+                            plan_object = _infer_file(plan_object,
+                                entry['mapping'], 'sequence')
 
             yield plan_object
