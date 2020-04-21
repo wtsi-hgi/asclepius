@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import os
 from tokenize import generate_tokens
 from io import StringIO
 
@@ -109,6 +110,14 @@ def get_variant_header(irods_path):
             "environment or add the bcftools binary to the PATH.")
 
         return None
+
+    # remove index file bcftools automatically creates in the working directory
+    filename = irods_path.split('/')[-1]
+    try:
+        os.remove(filename + '.tbi')
+    except FileNotFoundError:
+        pass
+
     header_dict = parse_variant_header(header)
     header_dict['sample_names'] = samples
     return header_dict
