@@ -87,7 +87,29 @@ def get_sequence_header(irods_path):
 
         return None
 
-    return libcalignmentfile.AlignmentHeader.from_text(header).as_dict()
+    header_dict = libcalignmentfile.AlignmentHeader.from_text(header).as_dict()
+    for key in header_dict.keys():
+        if type(header_dict[key]) == list:
+
+            # Convert list representations of header elements into dictionaries
+            # with the identifier tag as the key
+            if 'ID' in header_dict[key][0].keys():
+                identifier = 'ID'
+            elif 'SN' in header_dict[key][0].keys():
+                identifier = 'SN'
+            else:
+                print("Couldn't find ID or SN in sequence file header row, " +
+                    "using first key in the row instead. File: {}"
+                    .format(irods_path), file=sys.stderr)
+                identifier = header_dict[key][0].keys()[0]
+
+            new_dict = {}
+            for item in header_dict[key]:
+                new_dict[item[identifier]] = item
+
+            header_dict[key] = new_dict
+
+    return header_dict
 
 def get_variant_header(irods_path):
     """Extract the header from a VCF type file in iRODS and convert it into

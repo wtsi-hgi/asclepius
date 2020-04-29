@@ -3,9 +3,9 @@
   value: ch12
 - attribute: group
   value: hgi
-- infer: SequenceData
+- infer: sequence
   mapping:
-    reference: reference
+    version: HD.VN
 - attribute: cost
   value: 100000
   unit: gbp
