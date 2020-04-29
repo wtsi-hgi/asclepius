@@ -52,7 +52,7 @@ def verify_config(yaml_file):
                         _err = "Invalid AVU (no attribute): {}".format(entry)
                         return _err
                     if 'value' not in keys:
-                        _err = "Invalid AVU (no value): {}".format(entry)"
+                        _err = "Invalid AVU (no value): {}".format(entry)
                         return _err
                     # unit field is optional, so don't check for it
                 else:
