@@ -42,40 +42,50 @@ def verify_config(yaml_file):
                 try:
                     re.compile(regex)
                 except (re.error, RecursionError):
-                    return "Invalid pattern (regex): {}".format(entry)
+                    _err = "Invalid pattern (regex): {}".format(entry)
+                    return _err
 
             for avu in config[entry]:
                 keys = avu.keys()
                 if 'infer' not in keys:
                     if 'attribute' not in keys:
-                        return "Invalid AVU (no attribute): {}".format(entry)
+                        _err = "Invalid AVU (no attribute): {}".format(entry)
+                        return _err
                     if 'value' not in keys:
-                        return "Invalid AVU (no value): {}".format(entry)
+                        _err = "Invalid AVU (no value): {}".format(entry)"
+                        return _err
                     # unit field is optional, so don't check for it
                 else:
                     if 'mapping' not in keys:
-                        return "Invalid dynamic AVU (no mapping): {}".format(entry)
+                        _err = "Invalid dynamic AVU (no mapping): {}"
+                            .format(entry)
+                        return _err
 
                     if avu['infer'] not in VALID_INFERS:
-                        return "Invalid dynamic AVU (nonexistant infer): {}".format(entry)
+                        _err = "Invalid dynamic AVU (nonexistant infer): {}"
+                            .format(entry)
+                        return _err
 
                     for mapping in avu['mapping'].keys():
                         split_map = mapping.split('.')
                         if split_map[0] == '*':
-                            return "Invalid dynamic AVU (wildcard can't " +
+                            _err = "Invalid dynamic AVU (wildcard can't " +
                                 "come first)"
+                            return _err
                         if avu['infer'] in ['sequence', 'variant']:
                             # TODO: better way to check that an index
                             if split_map[1] == '*' and len(split_map) == 2:
-                                return "Invalid dynamic AVU (variant and " +
+                                _err = "Invalid dynamic AVU (variant and " +
                                     "sequence files can't have a wildcard " +
                                     "as the second index without a " +
                                     "non-wildcard third index.): {}"
                                     .format(entry)
+                                return _err
                         if split_map.count('*') > 1:
-                            return "Invalid dynamic AVU (can't have multiple " +
+                            _err = "Invalid dynamic AVU (can't have multiple " +
                                 "wildcards in a single mapping): {}"
                                 .format(entry)
+                            return _err
 
     return True
 
