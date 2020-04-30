@@ -94,7 +94,7 @@ def _stringify_dict(dictionary):
     """Convert a simple dictionary into a string. Nested dictionaries won't
     work."""
 
-    if type(dictonary) != dict:
+    if type(dictionary) != dict:
         # TODO: Throw an error instead?
         return dictionary
 
