@@ -2,7 +2,7 @@ import logging
 
 DEFAULT_LOGGER = 'asclepius_main'
 
-def initLogger(logger_name, label):
+def init_logger(logger_name, label):
     """Initialises a logger object.
 
     @param logger_name String passed to the 'logging.getLogger()' function

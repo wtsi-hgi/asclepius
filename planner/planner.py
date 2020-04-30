@@ -6,6 +6,7 @@ import fnmatch
 from yaml import safe_load
 
 import core.irods_wrapper as irods_wrapper
+import core.logger as logger
 import planner.inferrers as inferrers
 from .object_class import Plan, AVU
 from config import ENV_FILE
@@ -27,6 +28,9 @@ def verify_config(yaml_file):
 
     @param file: Path to the configuration file.
     @return: True if config appears valid, problem string otherwise."""
+
+    log = logger.init_logger(logger.DEFAULT_LOGGER, 'Planner')
+    log.info("Verifying configuration file...")
 
     with open(yaml_file) as file:
         config = safe_load(file)
@@ -66,7 +70,7 @@ def verify_config(yaml_file):
                             .format(entry))
                         return _err
 
-                    for mapping in avu['mapping'].keys():
+                    for mapping in avu['mapping'].values():
                         split_map = mapping.split('.')
                         if split_map[0] == '*':
                             _err = ("Invalid dynamic AVU (wildcard can't " +
@@ -123,8 +127,7 @@ def _resolve_wildcard(header, target):
                 break
             wildcard_space = wildcard_space[subtarget]
     except KeyError:
-        print("Metadata target {} not found."
-            .format('.'.join(target)), file=sys.stderr)
+        return False
 
     try:
         wildcard_target = target[wildcard_index+1]
@@ -166,6 +169,8 @@ def infer_file(plan, mapping, file_type):
         configuration file
     @return: Modified Plan object"""
 
+    log = logger.init_logger(logger.DEFAULT_LOGGER, 'Planner')
+
     if file_type == 'variant':
         header = inferrers.get_variant_header(plan.path)
     elif file_type == 'sequence':
@@ -184,8 +189,13 @@ def infer_file(plan, mapping, file_type):
                     target_value = target_value[subtarget]
         except KeyError:
             # TODO: Abort execution? Continue after omitting bad target?
-            print("Metadata target {} not found in {}."
-                .format(mapping[key], plan.path), file=sys.stderr)
+            log.warning("Metadata target {} not found in {}."
+                .format(mapping[key], plan.path))
+            continue
+
+        if target_value == False:
+            log.warning("Metadata target {} not found in {}."
+                .format(mapping[key], plan.path))
             continue
 
         if type(target_value) == dict:
@@ -210,9 +220,11 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
     @param ignore_collections: If True, only data objects will be returned
     @return: (iRODS path, AVU dictionary) tuples, as a generator"""
 
+    log = logger.init_logger(logger.DEFAULT_LOGGER, "Planner")
+
     valid = verify_config(yaml_file)
     if valid != True:
-        print("Configuration file error:\n\t{}".format(valid), file=sys.stderr)
+        log.error("Configuration file error:\n\t{}".format(valid))
         exit(1)
 
     with open(yaml_file) as file:
@@ -224,6 +236,7 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
         _catalogue = catalogue
 
     if resume:
+        print("Resuming from progress file...")
         with open(progress_file, 'rt') as f:
             # _catalogue['objects'] = list(set(_catalogue['objects']) - set(line.strip() for line in f)) This doesnt work for some reason
             progress_file_set = set(line.strip() for line in f)
@@ -237,6 +250,8 @@ def generate_plans(catalogue, yaml_file, progress_file, resume,
                 plan_object = Plan(path, False, [])
             elif object_type == 'collections':
                 plan_object = Plan(path, True, [])
+
+            print("Planning AVUs for {}...".format(path))
 
             avu_dict = {}
             # Prior to Python 3.7, dictionaries did not have an enforced
