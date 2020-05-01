@@ -89,7 +89,34 @@ def get_sequence_header(irods_path):
 
     header_dict = libcalignmentfile.AlignmentHeader.from_text(header).as_dict()
     for key in header_dict.keys():
-        if type(header_dict[key]) == list:
+        if key == 'CO':
+            # pysam's 'from_text' just keeps CO tags as as one big string,
+            # this makes them more uniform
+            co_dict = {}
+            for index, line in enumerate(header_dict[key]):
+                # Split individual lines into dictionaries
+                _line = line.split()
+                _line_dict = {}
+                for item in line:
+                    # NOTE: Assumes every @CO row has the same formatting as
+                    # other tags. Potentially untrue?
+                    _split = item.split(':', 1)
+                    if len(_split) == 2:
+                        _item_key, _item_value = _split
+                    elif len(_split) == 1:
+                        # Deals with incomplete/empty key value pairs
+                        _item_key = _split[0]
+                        _item_value = ''
+                    else:
+                        continue
+
+                    _line_dict[_item_key] = _item_value
+
+                co_dict[str(index)] = _line_dict
+
+            header_dict[key] = co_dict
+
+        elif type(header_dict[key]) == list:
 
             # Convert list representations of header elements into dictionaries
             # with the identifier tag as the key
