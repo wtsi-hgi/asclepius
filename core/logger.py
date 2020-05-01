@@ -9,7 +9,8 @@ def init_logger(logger_name, label):
     @param label String used to prefix every log entry, ie if 'label' == 'CLI'
         every log entry will be formatted 'CLI: (message)'
     """
-    _log_handler = logging.FileHandler(filename='asclepius.log')
+    #_log_handler = logging.FileHandler(filename='asclepius.log')
+    _log_handler = logging.StreamHandler()
     _log_formatter = logging.Formatter(fmt="[%(asctime)s] {}: %(message)s"
         .format(label))
 
