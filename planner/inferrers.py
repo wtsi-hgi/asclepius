@@ -92,7 +92,7 @@ def get_sequence_header(irods_path):
 
     # Used to suggest whether a @CO line should be treated as a dictionary or
     # plain text string
-    keyvalue_regex = re.compile('(\s*[a-zA-Z0-9_]+:\s*[a-zA-Z0-9:,_]*\s*)*')
+    keyvalue_regex = re.compile('(\s*[a-zA-Z0-9_]+:\s*[^\s]*\s*)*')
     for key in header_dict.keys():
         if key == 'CO':
             # pysam's 'from_text' just keeps CO tags as as one big string,
@@ -105,7 +105,7 @@ def get_sequence_header(irods_path):
                     # Split individual lines into dictionaries
                     _line = line.split()
                     _line_dict = {}
-                    for item in line:
+                    for item in _line:
                         # NOTE: Assumes every @CO row has the same formatting as
                         # other tags. Potentially untrue?
                         _split = item.split(':', 1)
@@ -117,7 +117,6 @@ def get_sequence_header(irods_path):
                             _item_value = ''
                         else:
                             continue
-
                         _line_dict[_item_key] = _item_value
 
                     co_dict[str(index)] = _line_dict
