@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import re
 from tokenize import generate_tokens
 from io import StringIO
 
@@ -88,31 +89,38 @@ def get_sequence_header(irods_path):
         return None
 
     header_dict = libcalignmentfile.AlignmentHeader.from_text(header).as_dict()
+
+    # Used to suggest whether a @CO line should be treated as a dictionary or
+    # plain text string
+    keyvalue_regex = re.compile('(\s*[a-zA-Z0-9_]+:\s*[a-zA-Z0-9:,_]*\s*)*')
     for key in header_dict.keys():
         if key == 'CO':
             # pysam's 'from_text' just keeps CO tags as as one big string,
             # this makes them more uniform
             co_dict = {}
             for index, line in enumerate(header_dict[key]):
-                # Split individual lines into dictionaries
-                _line = line.split()
-                _line_dict = {}
-                for item in line:
-                    # NOTE: Assumes every @CO row has the same formatting as
-                    # other tags. Potentially untrue?
-                    _split = item.split(':', 1)
-                    if len(_split) == 2:
-                        _item_key, _item_value = _split
-                    elif len(_split) == 1:
-                        # Deals with incomplete/empty key value pairs
-                        _item_key = _split[0]
-                        _item_value = ''
-                    else:
-                        continue
+                if not keyvalue_regex.fullmatch(line):
+                    co_dict[str(index)] = line
+                else:
+                    # Split individual lines into dictionaries
+                    _line = line.split()
+                    _line_dict = {}
+                    for item in line:
+                        # NOTE: Assumes every @CO row has the same formatting as
+                        # other tags. Potentially untrue?
+                        _split = item.split(':', 1)
+                        if len(_split) == 2:
+                            _item_key, _item_value = _split
+                        elif len(_split) == 1:
+                            # Deals with incomplete/empty key value pairs
+                            _item_key = _split[0]
+                            _item_value = ''
+                        else:
+                            continue
 
-                    _line_dict[_item_key] = _item_value
+                        _line_dict[_item_key] = _item_value
 
-                co_dict[str(index)] = _line_dict
+                    co_dict[str(index)] = _line_dict
 
             header_dict[key] = co_dict
 
