@@ -104,8 +104,8 @@ def _stringify_dict(dictionary):
 
     _string = ''
     for _key, _value in dictionary.items():
-        _string += "{}={},".format(_key, _value)
-    dictionary = _string.strip(',')
+        _string += "{}={}    ".format(_key, _value)
+    dictionary = _string.strip()
 
     return dictionary
 
@@ -152,9 +152,9 @@ def _resolve_wildcard(header, target):
     else:
         # Wildcard is in the middle, so it gets a column of header values
         for header_row in wildcard_space.values():
-            target_string += "{},".format(header_row[wildcard_target])
+            target_string += "{}    ".format(header_row[wildcard_target])
 
-        target_string = target_string.strip(',')
+        target_string = target_string.strip()
 
     return target_string
 
@@ -186,7 +186,11 @@ def infer_file(plan, mapping, file_type):
             else:
                 # Iteratively descend the header dictionary
                 for subtarget in target:
-                    target_value = target_value[subtarget]
+                    if subtarget == '?':
+                        target_value = target_value[
+                            list(target_value.keys())[0]]
+                    else:
+                        target_value = target_value[subtarget]
         except KeyError:
             # TODO: Abort execution? Continue after omitting bad target?
             log.warning("Metadata target {} not found in {}."
